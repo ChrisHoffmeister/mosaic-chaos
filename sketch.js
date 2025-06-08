@@ -1,5 +1,5 @@
 let imgs = [];
-let total = 100; // Anzahl der Bilder – passe das an!
+let total = 97; // Anzahl der Bilder – passe das an!
 let cols, rows;
 let imgW, imgH;
 
