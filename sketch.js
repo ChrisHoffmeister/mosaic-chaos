@@ -1,37 +1,45 @@
 let imgs = [];
-let total = 124; // Anzahl der Bilder – passe das an!
-let cols, rows;
-let imgW, imgH;
+let filenames = [];
 
 function preload() {
-  for (let i = 1; i <= total; i++) {
-    imgs.push(loadImage(`images/img${i}.jpg`));
+  // Bilder automatisch erzeugen (1–97), die vorhanden sind:
+  for (let i = 1; i <= 124; i++) {
+    filenames.push(`img${i}.jpg`);
+  }
+
+  for (let i = 0; i < filenames.length; i++) {
+    imgs.push(loadImage(`images/${filenames[i]}`));
   }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  cols = ceil(sqrt(total));
-  rows = ceil(total / cols);
-  imgW = width / cols;
-  imgH = height / rows;
   noLoop();
+  angleMode(RADIANS);
+  imageMode(CENTER); // Zentrierte Platzierung
 }
 
 function draw() {
   background(10);
-  let i = 0;
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (i >= imgs.length) return;
+  for (let i = 0; i < imgs.length; i++) {
+    let img = imgs[i];
 
-      let xOffset = random(-10, 10);
-      let yOffset = random(-10, 10);
-      let w = imgW * random(0.9, 1.05);
-      let h = imgH * random(0.9, 1.05);
+    // Zufällige Position
+    let x = random(width);
+    let y = random(height);
 
-      image(imgs[i], x * imgW + xOffset, y * imgH + yOffset, w, h);
-      i++;
-    }
+    // Zufällige Größe
+    let scale = random(0.4, 1.0);
+    let w = img.width * scale;
+    let h = img.height * scale;
+
+    // Zufällige Rotation
+    let angle = random(-PI / 8, PI / 8);
+
+    push();
+    translate(x, y);
+    rotate(angle);
+    image(img, 0, 0, w, h);
+    pop();
   }
 }
