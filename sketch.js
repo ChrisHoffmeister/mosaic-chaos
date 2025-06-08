@@ -1,53 +1,72 @@
 let imgs = [];
 let filenames = [];
+let cols, rows;
+let spacing = 5; // Abstand zwischen Bildern
 
 function preload() {
-  // 124 Bilder img1.jpg bis img124.jpg
   for (let i = 1; i <= 124; i++) {
     filenames.push(`img${i}.jpg`);
   }
-
   for (let i = 0; i < filenames.length; i++) {
     imgs.push(loadImage(`images/${filenames[i]}`));
   }
 }
 
 function setup() {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  createCanvas(w, h);
+  createCanvas(windowWidth, windowHeight);
   noLoop();
   imageMode(CENTER);
   angleMode(RADIANS);
+
+  cols = ceil(sqrt(imgs.length));
+  rows = ceil(imgs.length / cols);
 }
 
 function draw() {
   background(10);
+  
+  let gridW = width * 0.9;
+  let gridH = height * 0.9;
+  let cellW = gridW / cols;
+  let cellH = gridH / rows;
 
-  for (let i = 0; i < imgs.length; i++) {
-    let img = imgs[i];
+  let startX = (width - gridW) / 2;
+  let startY = (height - gridH) / 2;
 
-    // 🎯 Positionierung im Zentrum des Canvas mit leichtem Chaos
-    let x = random(width * 0.25, width * 0.75);
-    let y = random(height * 0.25, height * 0.75);
+  let i = 0;
 
-    // 🖼️ Originalseitenverhältnis beibehalten
-    let aspectRatio = img.width / img.height;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (i >= imgs.length) return;
 
-    // 📐 Zufällige, aber begrenzte Größe
-    let scale = random(0.3, 0.9);
-    let maxW = width * 0.22;
-    let targetW = min(img.width * scale, maxW);
-    let targetH = targetW / aspectRatio;
+      let img = imgs[i];
+      let aspect = img.width / img.height;
 
-    // 🔄 Rotation für organischen Stil
-    let angle = random(-PI / 10, PI / 10);
+      let maxW = cellW - spacing;
+      let maxH = cellH - spacing;
 
-    // 🎨 Zeichnen mit Rotation & Position
-    push();
-    translate(x, y);
-    rotate(angle);
-    image(img, 0, 0, targetW, targetH);
-    pop();
+      let targetW = maxW * random(0.95, 1.05);
+      let targetH = targetW / aspect;
+
+      if (targetH > maxH) {
+        targetH = maxH;
+        targetW = targetH * aspect;
+      }
+
+      // leichte Positionsverschiebung
+      let cx = startX + x * cellW + cellW / 2 + random(-10, 10);
+      let cy = startY + y * cellH + cellH / 2 + random(-10, 10);
+
+      // minimale Rotation
+      let angle = random(-PI / 36, PI / 36); // ~±5°
+
+      push();
+      translate(cx, cy);
+      rotate(angle);
+      image(img, 0, 0, targetW, targetH);
+      pop();
+
+      i++;
+    }
   }
 }
