@@ -1,7 +1,6 @@
 let imgs = [];
 let filenames = [];
-let cols, rows;
-let spacing = 4;
+let positions = [];
 
 function preload() {
   for (let i = 1; i <= 124; i++) {
@@ -15,55 +14,55 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noLoop();
-  imageMode(CENTER);
+  imageMode(CORNER);
   angleMode(RADIANS);
 
-  cols = ceil(sqrt(imgs.length));
-  rows = ceil(imgs.length / cols);
+  generateLayout();
 }
 
 function draw() {
   background(10);
-  
-  let gridW = width * 0.85;
-  let gridH = height * 0.85;
-  let cellW = gridW / cols;
-  let cellH = gridH / rows;
+  for (let i = 0; i < imgs.length; i++) {
+    let img = imgs[i];
+    let pos = positions[i];
 
-  let startX = (width - gridW) / 2;
-  let startY = (height - gridH) / 2;
+    push();
+    translate(pos.x, pos.y);
+    image(img, 0, 0, pos.w, pos.h);
+    pop();
+  }
+}
 
-  let i = 0;
+function generateLayout() {
+  let x = 20;
+  let y = 20;
+  let maxRowHeight = 0;
+  let padding = 6;
+  let maxW = width - 40;
 
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (i >= imgs.length) return;
+  for (let i = 0; i < imgs.length; i++) {
+    let img = imgs[i];
 
-      let img = imgs[i];
-      let aspect = img.width / img.height;
+    // Skalierung basierend auf Bildgröße, aber nicht zu groß
+    let scale = random(80, 140); // Zielhöhe in px
+    let aspect = img.width / img.height;
+    let w = scale * aspect;
+    let h = scale;
 
-      let maxW = cellW - spacing;
-      let maxH = cellH - spacing;
-
-      let targetW = maxW * random(0.95, 1.1);
-      let targetH = targetW / aspect;
-
-      if (targetH > maxH) {
-        targetH = maxH;
-        targetW = targetH * aspect;
-      }
-
-      let cx = startX + x * cellW + cellW / 2 + random(-6, 6);
-      let cy = startY + y * cellH + cellH / 2 + random(-6, 6);
-      let angle = random(-PI / 36, PI / 36); // ca. ±5°
-
-      push();
-      translate(cx, cy);
-      rotate(angle);
-      image(img, 0, 0, targetW, targetH);
-      pop();
-
-      i++;
+    // Zeilenumbruch
+    if (x + w > maxW) {
+      x = 20;
+      y += maxRowHeight + padding;
+      maxRowHeight = 0;
     }
+
+    // Zufälliger Versatz für Collage-Feeling
+    let dx = random(-4, 4);
+    let dy = random(-4, 4);
+
+    positions.push({ x: x + dx, y: y + dy, w: w, h: h });
+
+    x += w + padding;
+    maxRowHeight = max(maxRowHeight, h);
   }
 }
